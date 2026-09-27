@@ -1,0 +1,17 @@
+{
+  "name": "dev-harness",
+  "version": "0.1.1",
+  "description": "通用多 agent 开发 harness：leader 总路由（自带 workflow 取舍判定）+ 对抗化 workflow 流水线 + 按语言分离的 agent/skill/rule 包（go-*/web-*）+ 安全与格式化 hooks。项目差异由 .claude/project-profile.md 收敛。",
+  "author": {
+    "name": "yearsalso"
+  },
+  "keywords": [
+    "workflow",
+    "multi-agent",
+    "sdd",
+    "adversarial-review",
+    "go",
+    "typescript",
+    "react"
+  ]
+}

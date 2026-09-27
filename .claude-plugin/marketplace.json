@@ -1,0 +1,18 @@
+{
+  "name": "yearsalso",
+  "owner": {
+    "name": "yearsalso"
+  },
+  "metadata": {
+    "description": "yearsalso 自用 Claude Code harness 插件市场",
+    "version": "0.1.1"
+  },
+  "plugins": [
+    {
+      "name": "dev-harness",
+      "description": "通用多 agent 开发 harness：leader 总路由 + 对抗化 workflow + 语言分离的 agent/skill/rule 包 + 安全 hooks",
+      "category": "workflow",
+      "source": "./plugin"
+    }
+  ]
+}

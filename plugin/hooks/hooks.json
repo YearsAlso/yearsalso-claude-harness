@@ -1,0 +1,61 @@
+{
+  "description": "dev-harness hooks：路由提示注入 / 危险命令拦截 / 按扩展名分发格式化 / 提交前规范审查 / 会话环境体检",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/route-inject.sh\"",
+            "timeout": 10,
+            "statusMessage": "🧭 路由提示注入..."
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/env-check.sh\"",
+            "timeout": 30,
+            "description": "会话开始时检查 project-profile 与关键工具链"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/safety-guard.sh\"",
+            "description": "拦截危险命令"
+          },
+          {
+            "type": "agent",
+            "if": "Bash(git commit*)",
+            "prompt": "检查即将提交的 git 变更（git diff --cached 与 git diff）：1) 读取 .claude/project-profile.md 确定技术栈，无 profile 则按文件扩展名判断；2) 含 .go 变更按插件 go-code-review skill 维度（错误处理/并发安全/资源清理/命名/分层）审查；3) 含 .ts/.tsx 变更按 frontend-code-review skill 维度（Hooks 规则/类型安全/三态/样式令牌）审查；4) 其余文件仅检查是否误提交构建产物、日志、本地覆盖配置。输出：总体结论（是否建议提交）+ 🔴阻断项 + 🟡警告项 + 🔵建议项；无代码变更则回复：✅ 无代码变更，可以提交。",
+            "timeout": 180,
+            "statusMessage": "🔍 提交前栈规范审查..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/format-dispatch.sh\"",
+            "description": "按扩展名分发格式化（gofmt/biome/prettier）"
+          }
+        ]
+      }
+    ]
+  }
+}

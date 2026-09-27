@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  verify:
+    name: 结构与链路自检（清单/hooks/workflows/干跑回归）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 运行仓库自检（与本地 verify/check.sh 同入口）
+        run: bash verify/check.sh
+
+  marketplace-smoke:
+    name: marketplace 安装冒烟（Claude Code 真实加载）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: 注册本地 marketplace 并校验组件清单可解析
+        run: |
+          claude plugin marketplace add "$GITHUB_WORKSPACE"
+          claude plugin list | grep -q dev-harness \
+            || echo "（plugin list 未含 dev-harness 属预期：未安装到 user 作用域，仅验证 marketplace 可注册）"
+          # plugin.json/marketplace.json 能被 CLI 解析即视为冒烟通过；再兜底一次 JSON 结构
+          node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8')); JSON.parse(require('fs').readFileSync('plugin/.claude-plugin/plugin.json','utf8'))"
